@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}Home — Campus Skill Exchange{% endblock %}
+{% block content %}
+<div class="container py-2">
+
+  <div class="sx-page-header mb-4">
+    <h1 class="mb-1">
+      <i class="bi bi-mortarboard-fill me-2"></i>Campus Skill Exchange
+    </h1>
+    <p>AI-Powered Peer-to-Peer Mentorship — teach what you know, learn what you don't 🤝</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="sx-stat">
+        <div class="stat-number">{{ total_users }}</div>
+        <div class="stat-label">👨‍🎓 Students</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="sx-stat">
+        <div class="stat-number">{{ total_skills }}</div>
+        <div class="stat-label">📚 Unique Skills</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="sx-stat">
+        <div class="stat-number">{{ teach_count }}</div>
+        <div class="stat-label">🧑‍🏫 Skills Offered</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="sx-stat">
+        <div class="stat-number">{{ learn_count }}</div>
+        <div class="stat-label">🎯 Skills Wanted</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <!-- Most Taught -->
+    <div class="col-md-6">
+      <div class="sx-card h-100">
+        <h6 class="fw-bold mb-3">
+          <i class="bi bi-fire text-danger me-2"></i>Most Taught Skills
+        </h6>
+        {% for item in popular_teach %}
+        <div class="pop-bar-row">
+          <span class="pop-label">{{ item.skill_name }}</span>
+          <div class="pop-track">
+            <div class="pop-fill" style="width: {{ item.count|add:item.count }}0%"></div>
+          </div>
+          <span class="pop-count">{{ item.count }}</span>
+        </div>
+        {% empty %}
+        <p class="text-muted small">No skills added yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Most Wanted -->
+    <div class="col-md-6">
+      <div class="sx-card h-100">
+        <h6 class="fw-bold mb-3">
+          <i class="bi bi-star-fill text-warning me-2"></i>Most Wanted Skills
+        </h6>
+        {% for item in popular_learn %}
+        <div class="pop-bar-row">
+          <span class="pop-label">{{ item.skill_name }}</span>
+          <div class="pop-track">
+            <div class="pop-fill" style="width: {{ item.count|add:item.count }}0%"></div>
+          </div>
+          <span class="pop-count">{{ item.count }}</span>
+        </div>
+        {% empty %}
+        <p class="text-muted small">No skills added yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- All Skills -->
+  <div class="sx-card mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-collection me-2" style="color:#4e54c8;"></i>All Skills on Platform
+    </h6>
+    {% for skill in all_skills %}
+      <span class="tag-teach">{{ skill }}</span>
+    {% empty %}
+      <p class="text-muted small">No skills yet — be the first to add one!</p>
+    {% endfor %}
+  </div>
+
+  <!-- How It Works -->
+  <div class="sx-card">
+    <h6 class="fw-bold mb-4">
+      <i class="bi bi-info-circle me-2" style="color:#4e54c8;"></i>How It Works
+    </h6>
+    <div class="row g-3 text-center">
+      <div class="col-md-4">
+        <div class="step-icon-wrap mx-auto mb-2">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h6 class="fw-bold">1. Register</h6>
+        <p class="text-muted small step-text">Create an account with your student details or sign in with Google.</p>
+      </div>
+      <div class="col-md-4">
+        <div class="step-icon-wrap mx-auto mb-2">
+          <i class="bi bi-plus-circle-fill"></i>
+        </div>
+        <h6 class="fw-bold">2. Add Skills</h6>
+        <p class="text-muted small step-text">List skills you can teach and skills you want to learn.</p>
+      </div>
+      <div class="col-md-4">
+        <div class="step-icon-wrap mx-auto mb-2">
+          <i class="bi bi-search-heart-fill"></i>
+        </div>
+        <h6 class="fw-bold">3. Find &amp; Connect</h6>
+        <p class="text-muted small step-text">Our AI ranks the best peer tutors — connect and chat instantly.</p>
+      </div>
+    </div>
+    {% if not user.is_authenticated %}
+    <div class="text-center mt-4">
+      <a href="{% url 'register' %}" class="btn-sx me-2">
+        <i class="bi bi-person-plus me-1"></i>Get Started
+      </a>
+      <a href="{% url 'login' %}" class="btn-sx-outline">
+        <i class="bi bi-box-arrow-in-right me-1"></i>Sign In
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

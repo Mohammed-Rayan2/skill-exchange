@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Skill Exchange{% endblock %}
+{% block content %}
+<div class="container py-2">
+
+  <div class="sx-page-header mb-4">
+    <h1 class="mb-1">👋 Welcome, {{ user.display_name }}!</h1>
+    <p>Manage the skills you teach and the skills you want to learn.</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-4">
+      <div class="sx-stat">
+        <div class="stat-number">{{ teach_count }}</div>
+        <div class="stat-label">🧑‍🏫 Skills I Teach</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="sx-stat">
+        <div class="stat-number">{{ learn_count }}</div>
+        <div class="stat-label">🎯 Want to Learn</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="sx-stat">
+        <div class="stat-number">{{ conn_count }}</div>
+        <div class="stat-label">🤝 Connections</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Skills -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="sx-card">
+        <h6 class="fw-bold mb-1">
+          <i class="bi bi-mortarboard me-2" style="color:#4e54c8;"></i>Skills I Can Teach
+        </h6>
+        <p class="text-muted small mb-3">Add skills you're confident teaching others.</p>
+        <form method="post" action="{% url 'add_skill' %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="skill_type" value="Teach">
+          <input type="text" name="skill_name" class="sx-input flex-grow-1"
+                 placeholder="e.g. Python, Calculus..." required>
+          <button type="submit" class="btn-sx px-3">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="sx-card">
+        <h6 class="fw-bold mb-1">
+          <i class="bi bi-lightbulb me-2" style="color:#4e54c8;"></i>Skills I Want to Learn
+        </h6>
+        <p class="text-muted small mb-3">Add skills you're looking for help with.</p>
+        <form method="post" action="{% url 'add_skill' %}" class="d-flex gap-2">
+          {% csrf_token %}
+          <input type="hidden" name="skill_type" value="Learn">
+          <input type="text" name="skill_name" class="sx-input flex-grow-1"
+                 placeholder="e.g. UI/UX, French..." required>
+          <button type="submit" class="btn-sx px-3">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Skills -->
+  <div class="sx-card mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-list-check me-2" style="color:#4e54c8;"></i>My Skills
+    </h6>
+
+    {% if teach_skills %}
+    <p class="fw-semibold small text-muted mb-2">🧑‍🏫 Skills I Teach</p>
+    {% for skill in teach_skills %}
+    <div class="skill-row">
+      <div class="d-flex align-items-center gap-2">
+        <span class="tag-teach">Teach</span>
+        <span class="fw-semibold">{{ skill.skill_name }}</span>
+      </div>
+      <a href="{% url 'delete_skill' skill.id %}"
+         class="btn-danger-sm"
+         onclick="return confirm('Remove {{ skill.skill_name }}?')">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if teach_skills and learn_skills %}
+    <hr class="my-3" style="border-color:var(--border);">
+    {% endif %}
+
+    {% if learn_skills %}
+    <p class="fw-semibold small text-muted mb-2">🎯 Skills I Want to Learn</p>
+    {% for skill in learn_skills %}
+    <div class="skill-row">
+      <div class="d-flex align-items-center gap-2">
+        <span class="tag-learn">Learn</span>
+        <span class="fw-semibold">{{ skill.skill_name }}</span>
+      </div>
+      <a href="{% url 'delete_skill' skill.id %}"
+         class="btn-danger-sm"
+         onclick="return confirm('Remove {{ skill.skill_name }}?')">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if not teach_skills and not learn_skills %}
+    <div class="text-center py-4 text-muted">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      No skills added yet. Use the forms above to get started!
+    </div>
+    {% endif %}
+  </div>
+  
+  <!-- Received Connection Requests -->
+{% if recv_connections %}
+<div class="sx-card mb-4">
+  <h6 class="fw-bold mb-3">
+    <i class="bi bi-bell me-2" style="color:#4e54c8;"></i>
+    Incoming Requests
+    <span style="background:#4e54c8;color:#fff;border-radius:20px;padding:2px 10px;font-size:.78rem;margin-left:6px;">
+      {{ recv_connections.count }}
+    </span>
+  </h6>
+  <div class="table-responsive">
+    <table class="table sx-table">
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>Skill</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for conn in recv_connections %}
+        <tr>
+          <td class="fw-semibold">{{ conn.requester.display_name }}</td>
+          <td>{{ conn.skill_name }}</td>
+          <td class="text-muted small">{{ conn.created_at|date:"M d, Y" }}</td>
+          <td>
+            <span class="badge-status {{ conn.status|lower }}">{{ conn.status }}</span>
+          </td>
+          <td>
+            {% if conn.status == 'Pending' %}
+            <form method="post" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" name="accept_id" value="{{ conn.id }}">
+              <button type="submit" class="btn-sx btn-sm-sx">
+                <i class="bi bi-check-lg me-1"></i>Accept
+              </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'chat_room' conn.requester.id conn.skill_name %}"
+               class="btn-sx-outline btn-sm-sx ms-1">
+              <i class="bi bi-chat-dots me-1"></i>Chat
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+  <!-- Connection History -->
+  <div class="sx-card">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h6 class="fw-bold mb-0">
+        <i class="bi bi-clock-history me-2" style="color:#4e54c8;"></i>Connection History
+    </h6>
+    {% if connections %}
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="clear_history" value="1">
+        <button type="submit" class="btn-danger-sm"
+                onclick="return confirm('Clear all connection history?')">
+            <i class="bi bi-trash me-1"></i>Clear All
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+    {% if connections %}
+    <div class="table-responsive">
+      <table class="table sx-table">
+        <thead>
+          <tr>
+            <th>Connected To</th>
+            <th>Skill</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Chat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for conn in connections %}
+          <tr>
+            <td class="fw-semibold">{{ conn.provider.display_name }}</td>
+            <td>{{ conn.skill_name }}</td>
+            <td class="text-muted small">{{ conn.created_at|date:"M d, Y" }}</td>
+            <td>
+              <span class="badge-status {{ conn.status|lower }}">
+                {{ conn.status }}
+              </span>
+            </td>
+            <td>
+              <a href="{% url 'chat_room' conn.provider.id conn.skill_name %}"
+                 class="btn-sx btn-sm-sx">
+                <i class="bi bi-chat-dots me-1"></i>Chat
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-4 text-muted">
+      <i class="bi bi-people fs-1 d-block mb-2"></i>
+      No connections yet.
+      <a href="{% url 'find_skills' %}" class="sx-link">Find Skills →</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

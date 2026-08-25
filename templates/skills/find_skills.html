@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Find Skills — Skill Exchange{% endblock %}
+{% block content %}
+<div class="container py-2">
+  <div class="sx-page-header mb-4">
+    <h1 class="mb-1"><i class="bi bi-search me-2"></i>Find Skills</h1>
+    <p>Search for any skill — our AI ranks the best peer tutors by relevance.</p>
+  </div>
+
+  <!-- AI info box -->
+  <div class="sx-card mb-4">
+    <p class="mb-0">
+      <i class="bi bi-robot me-2" style="color:#4e54c8;"></i>
+      <strong>How the AI works:</strong> Uses <strong>TF-IDF (NLP) + Cosine Similarity</strong>
+      to find matches even if you don't type the exact skill name.
+      Try <em>"maths"</em> to find Calculus and Statistics!
+    </p>
+  </div>
+
+  <!-- Search form -->
+  <form method="get" class="d-flex gap-2 mb-4">
+    <input type="text" name="q" value="{{ query }}"
+           class="sx-input flex-grow-1"
+           placeholder="🔎 Type a skill e.g. Python, Calculus, French...">
+    <button type="submit" class="btn-sx px-4">
+      <i class="bi bi-search me-1"></i>Search
+    </button>
+  </form>
+
+  {% if query %}
+    {% if results %}
+    <p class="text-muted small mb-3">
+      ✅ Found <strong>{{ results|length }}</strong> match(es) for
+      <strong>"{{ query }}"</strong>
+    </p>
+    {% for item in results %}
+    <div class="result-card sx-card mb-3">
+      <div class="row align-items-center g-3">
+        <div class="col-md-4">
+          <div class="d-flex align-items-center gap-3">
+            <div class="user-avatar">
+              {{ item.user.first_name|first|default:item.user.username|first|upper }}
+            </div>
+            <div>
+              <div class="fw-bold">{{ item.user.display_name }}</div>
+              <div class="text-muted small">
+                <i class="bi bi-book me-1"></i>{{ item.user.display_course }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="mb-1">
+            Offers: <span class="tag-teach">{{ item.skill.skill_name }}</span>
+          </div>
+          <div class="rel-bar">
+            <div class="rel-fill" style="width:{{ item.score }}%"></div>
+          </div>
+          <span class="small fw-semibold" style="color:{{ item.color }};">
+            ● {{ item.label }} match — {{ item.score }}%
+          </span>
+        </div>
+        <div class="col-md-3 text-end">
+          <a href="{% url 'connect' item.user.id item.skill.skill_name %}"
+             class="btn-sx w-100">
+            <i class="bi bi-hand-thumbs-up me-1"></i>Connect &amp; Chat
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="sx-card text-center py-5">
+      <i class="bi bi-emoji-frown fs-1 text-muted d-block mb-2"></i>
+      <p class="text-muted">No matches found for <strong>"{{ query }}"</strong>.</p>
+      <p class="text-muted small">Try a different keyword.</p>
+    </div>
+    {% endif %}
+  {% else %}
+  <!-- Show all available skills as tags -->
+  <div class="sx-card">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-collection me-2" style="color:#4e54c8;"></i>
+      Skills available on the platform
+    </h6>
+    {% for skill in all_skills %}
+      <span class="tag-teach">{{ skill }}</span>
+    {% empty %}
+      <p class="text-muted small">No skills yet. Be the first to add one!</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Chat with {{ other.display_name }} — Skill Exchange{% endblock %}
+{% block content %}
+<div class="container py-2">
+  <div class="row g-3">
+
+    <!-- Sidebar: conversation list -->
+    <div class="col-md-4 d-none d-md-block">
+      <div class="sx-card p-0 overflow-hidden">
+        <div class="p-3 border-bottom">
+          <h6 class="fw-bold mb-0">
+            <i class="bi bi-chat-dots me-2"></i>Conversations
+          </h6>
+        </div>
+        {% for conv in conversations %}
+        <a href="{% url 'chat_room' conv.other.id conv.skill %}"
+           class="conv-row text-decoration-none
+           {% if conv.other.id == other.id and conv.skill == skill_name %}active{% endif %}">
+          <div class="conv-avatar">
+            {{ conv.other.first_name|first|default:conv.other.username|first|upper }}
+          </div>
+          <div class="conv-info">
+            <div class="fw-semibold small">{{ conv.other.display_name }}</div>
+            <div class="text-muted" style="font-size:.78rem;">{{ conv.skill }}</div>
+          </div>
+        </a>
+        {% empty %}
+        <p class="text-muted small p-3">No conversations yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Chat window -->
+    <div class="col-md-8">
+      <div class="chat-window">
+
+        <!-- Header -->
+        <div class="chat-window-header">
+          <a href="{% url 'inbox' %}" class="btn-back me-2">
+            <i class="bi bi-arrow-left"></i>
+          </a>
+          <div class="conv-avatar sm">
+            {{ other.first_name|first|default:other.username|first|upper }}
+          </div>
+          <div class="ms-2">
+            <div class="fw-bold text-white">{{ other.display_name }}</div>
+            <div style="font-size:.8rem;opacity:.85;color:#fff;">
+              Topic: {{ skill_name }} · {{ other.display_course }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+          {% for msg in messages %}
+          <div class="{% if msg.sender == user %}bw-me{% else %}bw-them{% endif %}">
+            {% if msg.sender != user %}
+            <div class="conv-avatar xs">
+              {{ other.first_name|first|default:other.username|first|upper }}
+            </div>
+            {% endif %}
+            <div>
+              <div class="{% if msg.sender == user %}bubble-me{% else %}bubble-them{% endif %}">
+                {{ msg.content }}
+              </div>
+              <div class="msg-meta {% if msg.sender == user %}text-end{% endif %}">
+                {% if msg.sender == user %}You{% else %}{{ other.first_name|default:other.username }}{% endif %}
+                · {{ msg.timestamp|date:"H:i" }}
+                {% if msg.sender == user %}
+                &nbsp;
+                <a href="{% url 'delete_message' msg.id %}"
+                   class="text-danger"
+                   style="font-size:.7rem;"
+                   onclick="return confirm('Delete this message?')">
+                  <i class="bi bi-trash"></i>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-chat fs-1 d-block mb-2"></i>
+            No messages yet — say hello! 👋
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+          <form method="post" class="d-flex gap-2 align-items-center">
+            {% csrf_token %}
+            <input type="text" name="content" id="msgInput"
+                   class="chat-input-field flex-grow-1"
+                   placeholder="Type a message to {{ other.first_name|default:other.username }}..."
+                   autocomplete="off" required>
+            <button type="submit" class="send-btn">
+              <i class="bi bi-send-fill me-1"></i>Send
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Auto-scroll to bottom of chat on load
+  const msgs = document.getElementById('chatMessages');
+  if (msgs) msgs.scrollTop = msgs.scrollHeight;
+</script>
+{% endblock %}
