@@ -74,7 +74,8 @@ def dashboard_view(request):
     if request.method == 'POST' and 'clear_history' in request.POST:
         from skills.models import Connection
         Connection.objects.filter(requester=request.user).delete()
-        messages.success(request, "🗑️ Connection history cleared.")
+        from django.contrib import messages as msg
+        msg.success(request, "🗑️ Connection history cleared.")
         return redirect('dashboard')
 
     # Accept a connection request
