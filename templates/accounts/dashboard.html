@@ -174,65 +174,102 @@
 {% endif %}
 
   <!-- Connection History -->
-  <div class="sx-card">
-    
+ <div class="sx-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
-    <h6 class="fw-bold mb-0">
-        <i class="bi bi-clock-history me-2" style="color:#4e54c8;"></i>Connection History
-    </h6>
-    {% if connections %}
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="clear_history" value="1">
-        <button type="submit" class="btn-danger-sm"
-                onclick="return confirm('Clear all connection history?')">
+        <h6 class="fw-bold mb-0">
+            <i class="bi bi-clock-history me-2" style="color:#4e54c8;"></i>
+            Connection History
+        </h6>
+        {% if connections %}
+        <button onclick="document.getElementById('clearModal').style.display='flex'"
+                class="btn-danger-sm">
             <i class="bi bi-trash me-1"></i>Clear All
         </button>
-    </form>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
 
     {% if connections %}
     <div class="table-responsive">
-      <table class="table sx-table">
-        <thead>
-          <tr>
-            <th>Connected To</th>
-            <th>Skill</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Chat</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for conn in connections %}
-          <tr>
-            <td class="fw-semibold">{{ conn.provider.display_name }}</td>
-            <td>{{ conn.skill_name }}</td>
-            <td class="text-muted small">{{ conn.created_at|date:"M d, Y" }}</td>
-            <td>
-              <span class="badge-status {{ conn.status|lower }}">
-                {{ conn.status }}
-              </span>
-            </td>
-            <td>
-              <a href="{% url 'chat_room' conn.provider.id conn.skill_name %}"
-                 class="btn-sx btn-sm-sx">
-                <i class="bi bi-chat-dots me-1"></i>Chat
-              </a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        <table class="table sx-table">
+            <thead>
+                <tr>
+                    <th>Connected To</th>
+                    <th>Skill</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Chat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conn in connections %}
+                <tr>
+                    <td class="fw-semibold">{{ conn.provider.display_name }}</td>
+                    <td>{{ conn.skill_name }}</td>
+                    <td class="text-muted small">{{ conn.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <span class="badge-status {{ conn.status|lower }}">
+                            {{ conn.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'chat_room' conn.provider.id conn.skill_name %}"
+                           class="btn-sx btn-sm-sx">
+                            <i class="bi bi-chat-dots me-1"></i>Chat
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
     {% else %}
     <div class="text-center py-4 text-muted">
-      <i class="bi bi-people fs-1 d-block mb-2"></i>
-      No connections yet.
-      <a href="{% url 'find_skills' %}" class="sx-link">Find Skills →</a>
+        <i class="bi bi-people fs-1 d-block mb-2"></i>
+        No connections yet.
+        <a href="{% url 'find_skills' %}" class="sx-link">Find Skills →</a>
     </div>
     {% endif %}
-  </div>
 </div>
-{% endblock %}
+
+<!-- Modern Clear History Modal -->
+<div id="clearModal" style="
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:9999;
+    align-items:center; justify-content:center;">
+    <div style="
+        background:var(--bg-card); border:1px solid var(--border);
+        border-radius:20px; padding:2rem; max-width:380px; width:90%;
+        text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+        <div style="
+            width:60px; height:60px; background:#fff0f0;
+            border-radius:50%; display:flex; align-items:center;
+            justify-content:center; margin:0 auto 1rem;">
+            <i class="bi bi-trash" style="font-size:1.5rem; color:#dc3545;"></i>
+        </div>
+        <h5 class="fw-bold mb-2" style="color:var(--text);">Clear History?</h5>
+        <p style="color:var(--muted); font-size:.9rem; margin-bottom:1.5rem;">
+            This will remove all your connection history permanently. This action cannot be undone.
+        </p>
+        <div class="d-flex gap-2 justify-content-center">
+            <button onclick="document.getElementById('clearModal').style.display='none'"
+                    style="
+                    background:var(--bg); color:var(--text);
+                    border:1.5px solid var(--border); border-radius:10px;
+                    padding:.6rem 1.5rem; font-weight:600; cursor:pointer;
+                    font-family:'Inter',sans-serif; font-size:.9rem;">
+                Cancel
+            </button>
+            <form method="post" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="clear_history" value="1">
+                <button type="submit" style="
+                    background:#dc3545; color:white;
+                    border:none; border-radius:10px;
+                    padding:.6rem 1.5rem; font-weight:600; cursor:pointer;
+                    font-family:'Inter',sans-serif; font-size:.9rem;">
+                    <i class="bi bi-trash me-1"></i>Yes, Clear All
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
