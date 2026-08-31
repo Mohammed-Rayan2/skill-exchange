@@ -3,146 +3,182 @@
 {% block content %}
 
 <div class="container py-4">
-    <!-- Header -->
-    <div class="sx-page-header mb-4">
-        <h1 class="mb-1">Welcome, {{ user.display_name|default:user.username }}! 👋</h1>
-        <p>Manage the skills you teach and the skills you want to learn.</p>
+    <!-- ===== GRADIENT HEADER ===== -->
+    <div class="dashboard-header mb-4" style="background: linear-gradient(135deg, #4e54c8, #3b3f9e); border-radius: 16px; padding: 2rem 2.5rem; color: white; position: relative; overflow: hidden;">
+        <div style="position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -40%; left: 10%; width: 200px; height: 200px; background: rgba(255,255,255,0.04); border-radius: 50%;"></div>
+        <h1 class="mb-1" style="font-weight: 800; position: relative; z-index: 1;">
+            <i class="bi bi-emoji-wave"></i> Welcome, {{ user.display_name|default:user.username }}! 🎉
+        </h1>
+        <p style="opacity: 0.85; margin-bottom: 0; position: relative; z-index: 1;">Manage the skills you teach and the skills you want to learn.</p>
     </div>
 
-    <!-- ADD SKILLS BUTTONS -->
+    <!-- ===== ACTION BUTTONS ===== -->
     <div class="row g-3 mb-4">
-        <div class="col-6">
-            <button class="btn btn-primary w-100 py-3" data-bs-toggle="modal" data-bs-target="#addTeachSkillModal">
+        <div class="col-md-6">
+            <button class="btn btn-primary w-100 py-3" data-bs-toggle="modal" data-bs-target="#addTeachSkillModal" style="border-radius: 12px; font-weight: 600; transition: all 0.3s ease;">
                 <i class="bi bi-plus-circle me-2"></i>Add Skill You Teach
             </button>
         </div>
-        <div class="col-6">
-            <button class="btn btn-success w-100 py-3" data-bs-toggle="modal" data-bs-target="#addLearnSkillModal">
+        <div class="col-md-6">
+            <button class="btn btn-success w-100 py-3" data-bs-toggle="modal" data-bs-target="#addLearnSkillModal" style="border-radius: 12px; font-weight: 600; transition: all 0.3s ease;">
                 <i class="bi bi-plus-circle me-2"></i>Add Skill You Want to Learn
             </button>
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- ===== STATS CARDS ===== -->
     <div class="row g-3 mb-4">
-        <div class="col-4">
-            <div class="sx-stat text-center p-3 bg-white rounded-3 shadow-sm">
-                <div class="stat-number display-6 fw-bold text-primary">{{ teach_count|default:"0" }}</div>
-                <div class="stat-label text-muted">Skills I Teach</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="sx-stat text-center p-3 bg-white rounded-3 shadow-sm">
-                <div class="stat-number display-6 fw-bold text-success">{{ learn_count|default:"0" }}</div>
-                <div class="stat-label text-muted">Want to Learn</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="sx-stat text-center p-3 bg-white rounded-3 shadow-sm">
-                <div class="stat-number display-6 fw-bold text-info">{{ connections|length|default:"0" }}</div>
-                <div class="stat-label text-muted">Connections</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Display Current Skills -->
-    <div class="row g-3 mb-4">
-        <div class="col-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <i class="bi bi-mortarboard me-2"></i>Skills I Teach
+        <div class="col-md-4">
+            <div class="stat-card" style="background: white; border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e8ecf4; transition: all 0.3s ease; height: 100%; position: relative; overflow: hidden;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: #4e54c8; line-height: 1;">{{ teach_count|default:"0" }}</div>
+                <div class="stat-label" style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                    <i class="bi bi-mortarboard me-1"></i> Skills I Teach
                 </div>
-                <div class="card-body">
-                    {% if teach_skills %}
-                        <ul class="list-group list-group-flush">
-                            {% for skill in teach_skills %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ skill.skill_name }}
-                                <form method="post" action="{% url 'delete_skill' skill.id %}" style="margin:0;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-x-circle"></i>
-                                    </button>
-                                </form>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted text-center py-3">No skills added yet.</p>
-                    {% endif %}
+                <div style="font-size: 2rem; opacity: 0.10; position: absolute; right: 1rem; top: 1rem;">
+                    <i class="bi bi-mortarboard"></i>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <i class="bi bi-lightbulb me-2"></i>Skills I Want to Learn
+        <div class="col-md-4">
+            <div class="stat-card" style="background: white; border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e8ecf4; transition: all 0.3s ease; height: 100%; position: relative; overflow: hidden;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: #2ecc71; line-height: 1;">{{ learn_count|default:"0" }}</div>
+                <div class="stat-label" style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                    <i class="bi bi-lightbulb me-1"></i> Want to Learn
                 </div>
-                <div class="card-body">
-                    {% if learn_skills %}
-                        <ul class="list-group list-group-flush">
-                            {% for skill in learn_skills %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ skill.skill_name }}
-                                <form method="post" action="{% url 'delete_skill' skill.id %}" style="margin:0;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="bi bi-x-circle"></i>
-                                    </button>
-                                </form>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted text-center py-3">No skills added yet.</p>
-                    {% endif %}
+                <div style="font-size: 2rem; opacity: 0.10; position: absolute; right: 1rem; top: 1rem;">
+                    <i class="bi bi-lightbulb"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: white; border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #e8ecf4; transition: all 0.3s ease; height: 100%; position: relative; overflow: hidden;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: #f39c12; line-height: 1;">{{ connections|length|default:"0" }}</div>
+                <div class="stat-label" style="font-size: 0.85rem; color: #6c757d; font-weight: 500;">
+                    <i class="bi bi-people me-1"></i> Connections
+                </div>
+                <div style="font-size: 2rem; opacity: 0.10; position: absolute; right: 1rem; top: 1rem;">
+                    <i class="bi bi-people"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Connection History -->
-    <div class="sx-card bg-white rounded-3 shadow-sm p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold mb-0">
-                <i class="bi bi-clock-history me-2 text-primary"></i>
+    <!-- ===== SKILL SECTIONS ===== -->
+    <div class="row g-3 mb-4">
+        <!-- Skills I Teach -->
+        <div class="col-md-6">
+            <div class="skill-section" style="background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #e8ecf4; box-shadow: 0 2px 12px rgba(0,0,0,0.04); height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h6 style="font-weight: 700; margin: 0;">
+                        <i class="bi bi-mortarboard me-2" style="color: #4e54c8;"></i>
+                        Skills I Teach
+                    </h6>
+                    <span class="badge" style="background: #4e54c8;">{{ teach_skills|length }}</span>
+                </div>
+                {% if teach_skills %}
+                    <div>
+                        {% for skill in teach_skills %}
+                        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 0.5rem 1rem; background: #f8f9ff; border-radius: 8px; font-size: 0.85rem; font-weight: 500; border: 1px solid #e8ecf4; transition: all 0.3s ease; width: 100%; margin-bottom: 0.5rem;">
+                            <i class="bi bi-check-circle-fill" style="color: #4e54c8;"></i>
+                            {{ skill.skill_name }}
+                            <form method="post" action="{% url 'delete_skill' skill.id %}" style="margin:0; display:inline; margin-left: auto;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #6c757d; cursor: pointer; padding: 0 4px; transition: all 0.3s ease;">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 2rem 1rem; color: #6c757d;">
+                        <i class="bi bi-plus-circle" style="font-size: 2.5rem; opacity: 0.3; display: block; margin-bottom: 0.5rem;"></i>
+                        <p style="margin-bottom: 0;">No skills added yet.</p>
+                        <small>Click "Add Skill You Teach" above</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Skills I Want to Learn -->
+        <div class="col-md-6">
+            <div class="skill-section" style="background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #e8ecf4; box-shadow: 0 2px 12px rgba(0,0,0,0.04); height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h6 style="font-weight: 700; margin: 0;">
+                        <i class="bi bi-lightbulb me-2" style="color: #2ecc71;"></i>
+                        Skills I Want to Learn
+                    </h6>
+                    <span class="badge" style="background: #2ecc71;">{{ learn_skills|length }}</span>
+                </div>
+                {% if learn_skills %}
+                    <div>
+                        {% for skill in learn_skills %}
+                        <div style="display: inline-flex; align-items: center; gap: 8px; padding: 0.5rem 1rem; background: #f8fff8; border-radius: 8px; font-size: 0.85rem; font-weight: 500; border: 1px solid #e8ecf4; transition: all 0.3s ease; width: 100%; margin-bottom: 0.5rem;">
+                            <i class="bi bi-star-fill" style="color: #2ecc71;"></i>
+                            {{ skill.skill_name }}
+                            <form method="post" action="{% url 'delete_skill' skill.id %}" style="margin:0; display:inline; margin-left: auto;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; color: #6c757d; cursor: pointer; padding: 0 4px; transition: all 0.3s ease;">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align: center; padding: 2rem 1rem; color: #6c757d;">
+                        <i class="bi bi-plus-circle" style="font-size: 2.5rem; opacity: 0.3; display: block; margin-bottom: 0.5rem;"></i>
+                        <p style="margin-bottom: 0;">No skills added yet.</p>
+                        <small>Click "Add Skill You Want to Learn" above</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONNECTION HISTORY ===== -->
+    <div style="background: white; border-radius: 16px; padding: 1.5rem; border: 1px solid #e8ecf4; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-top: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h6 style="font-weight: 700; margin: 0;">
+                <i class="bi bi-clock-history me-2" style="color: #4e54c8;"></i>
                 Connection History
             </h6>
             {% if connections %}
             <button onclick="document.getElementById('clearModal').style.display='flex'"
-                    class="btn btn-danger btn-sm">
+                    class="btn btn-outline-danger btn-sm" style="border-radius: 8px;">
                 <i class="bi bi-trash me-1"></i>Clear All
             </button>
             {% endif %}
         </div>
 
         {% if connections %}
-        <div class="table-responsive">
-            <table class="table table-hover">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; margin-bottom: 0; border-collapse: collapse;">
                 <thead>
                     <tr>
-                        <th>Connected To</th>
-                        <th>Skill</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Chat</th>
+                        <th style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border-bottom: 2px solid #e8ecf4; padding: 0.75rem 0.5rem; text-align: left;">Connected To</th>
+                        <th style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border-bottom: 2px solid #e8ecf4; padding: 0.75rem 0.5rem; text-align: left;">Skill</th>
+                        <th style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border-bottom: 2px solid #e8ecf4; padding: 0.75rem 0.5rem; text-align: left;">Date</th>
+                        <th style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border-bottom: 2px solid #e8ecf4; padding: 0.75rem 0.5rem; text-align: left;">Status</th>
+                        <th style="font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border-bottom: 2px solid #e8ecf4; padding: 0.75rem 0.5rem; text-align: left;">Chat</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for conn in connections %}
-                    <tr>
-                        <td class="fw-semibold">{{ conn.provider.display_name|default:conn.provider.username }}</td>
-                        <td>{{ conn.skill_name }}</td>
-                        <td class="text-muted small">{{ conn.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <span class="badge {% if conn.status == 'Accepted' %}bg-success{% elif conn.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                    <tr style="transition: all 0.3s ease;">
+                        <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid #e8ecf4; font-weight: 600;">{{ conn.provider.display_name|default:conn.provider.username }}</td>
+                        <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid #e8ecf4;">{{ conn.skill_name }}</td>
+                        <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid #e8ecf4; color: #6c757d; font-size: 0.85rem;">{{ conn.created_at|date:"M d, Y" }}</td>
+                        <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid #e8ecf4;">
+                            <span class="badge {% if conn.status == 'Accepted' %}bg-success{% elif conn.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}" style="padding: 0.35rem 0.75rem; border-radius: 50px; font-weight: 600;">
                                 {{ conn.status }}
                             </span>
                         </td>
-                        <td>
+                        <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid #e8ecf4;">
                             <a href="{% url 'chat_room' conn.provider.id conn.skill_name %}"
-                               class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-chat-dots me-1"></i>Chat
+                               class="btn btn-outline-primary btn-sm" style="border-radius: 8px; font-weight: 500; padding: 0.25rem 0.75rem; font-size: 0.8rem; border: 1.5px solid #4e54c8; color: #4e54c8; background: transparent; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                                <i class="bi bi-chat-dots"></i> Chat
                             </a>
                         </td>
                     </tr>
@@ -151,83 +187,101 @@
             </table>
         </div>
         {% else %}
-        <div class="text-center py-5 text-muted">
-            <i class="bi bi-people fs-1 d-block mb-3"></i>
-            <p>No connections yet.</p>
-            <a href="{% url 'find_skills' %}" class="btn btn-primary">Find Skills →</a>
+        <div style="text-align: center; padding: 3rem 1rem; color: #6c757d;">
+            <i class="bi bi-people" style="font-size: 2.5rem; opacity: 0.3; display: block; margin-bottom: 0.75rem;"></i>
+            <p style="margin-bottom: 0.5rem;">No connections yet.</p>
+            <a href="{% url 'find_skills' %}" class="btn btn-primary btn-sm" style="border-radius: 10px; font-weight: 600;">
+                Find Skills <i class="bi bi-arrow-right ms-1"></i>
+            </a>
         </div>
         {% endif %}
     </div>
 </div>
 
-<!-- MODAL: Add Teach Skill -->
+<!-- ===== MODAL: Add Teach Skill ===== -->
 <div class="modal fade" id="addTeachSkillModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-mortarboard me-2 text-primary"></i>Add Skill You Teach</h5>
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom: 1px solid #e8ecf4; padding: 1.25rem 1.5rem;">
+                <h5 style="font-weight: 700; margin: 0;">
+                    <i class="bi bi-mortarboard me-2" style="color: #4e54c8;"></i>
+                    Add Skill You Teach
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="post" action="{% url 'add_skill' %}">
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 1.5rem;">
                     {% csrf_token %}
                     <input type="hidden" name="skill_type" value="Teach">
                     <div class="mb-3">
-                        <label class="form-label">Skill Name</label>
-                        <input type="text" name="skill_name" class="form-control" placeholder="e.g., Python, Graphic Design, French..." required>
+                        <label class="form-label" style="font-weight: 600;">Skill Name</label>
+                        <input type="text" name="skill_name" class="form-control form-control-lg" 
+                               placeholder="e.g., Python, Graphic Design, French..." 
+                               style="border-radius: 10px; border: 1.5px solid #e8ecf4; padding: 0.75rem 1rem; font-size: 1rem;" required>
+                        <small style="color: #6c757d; font-size: 0.85rem;">Enter the skill you're proficient in and can teach others.</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Skill</button>
+                <div class="modal-footer" style="border-top: 1px solid #e8ecf4; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i>Add Skill
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- MODAL: Add Learn Skill -->
+<!-- ===== MODAL: Add Learn Skill ===== -->
 <div class="modal fade" id="addLearnSkillModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-lightbulb me-2 text-success"></i>Add Skill You Want to Learn</h5>
+        <div class="modal-content" style="border: none; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom: 1px solid #e8ecf4; padding: 1.25rem 1.5rem;">
+                <h5 style="font-weight: 700; margin: 0;">
+                    <i class="bi bi-lightbulb me-2" style="color: #2ecc71;"></i>
+                    Add Skill You Want to Learn
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="post" action="{% url 'add_skill' %}">
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 1.5rem;">
                     {% csrf_token %}
                     <input type="hidden" name="skill_type" value="Learn">
                     <div class="mb-3">
-                        <label class="form-label">Skill Name</label>
-                        <input type="text" name="skill_name" class="form-control" placeholder="e.g., Machine Learning, Web Development, French..." required>
+                        <label class="form-label" style="font-weight: 600;">Skill Name</label>
+                        <input type="text" name="skill_name" class="form-control form-control-lg" 
+                               placeholder="e.g., Machine Learning, Web Development, French..." 
+                               style="border-radius: 10px; border: 1.5px solid #e8ecf4; padding: 0.75rem 1rem; font-size: 1rem;" required>
+                        <small style="color: #6c757d; font-size: 0.85rem;">Enter the skill you'd like to learn from peers.</small>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success">Add Skill</button>
+                <div class="modal-footer" style="border-top: 1px solid #e8ecf4; padding: 1rem 1.5rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 10px; font-weight: 600;">Cancel</button>
+                    <button type="submit" class="btn btn-success" style="border-radius: 10px; font-weight: 600;">
+                        <i class="bi bi-plus-circle me-1"></i>Add Skill
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Clear History Modal -->
-<div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+<!-- ===== CLEAR HISTORY MODAL ===== -->
+<div id="clearModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
     <div style="background:white; border-radius:20px; padding:2rem; max-width:400px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-        <div style="width:60px; height:60px; background:#fff0f0; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
-            <i class="bi bi-trash" style="font-size:1.5rem; color:#dc3545;"></i>
+        <div style="width:64px; height:64px; background:#fff0f0; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+            <i class="bi bi-trash" style="font-size:1.8rem; color:#dc3545;"></i>
         </div>
         <h5 class="fw-bold mb-2">Clear History?</h5>
         <p style="color:#6c757d; font-size:.9rem; margin-bottom:1.5rem;">
-            This will remove all your connection history permanently. This action cannot be undone.
+            This will permanently remove all your connection history. This action cannot be undone.
         </p>
         <div class="d-flex gap-2 justify-content-center">
-            <button onclick="document.getElementById('clearModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+            <button onclick="document.getElementById('clearModal').style.display='none'" class="btn btn-secondary px-4" style="border-radius: 10px; font-weight: 600;">Cancel</button>
             <form method="post" style="margin:0;">
                 {% csrf_token %}
                 <input type="hidden" name="clear_history" value="1">
-                <button type="submit" class="btn btn-danger">
+                <button type="submit" class="btn btn-danger px-4" style="border-radius: 10px; font-weight: 600;">
                     <i class="bi bi-trash me-1"></i>Yes, Clear All
                 </button>
             </form>

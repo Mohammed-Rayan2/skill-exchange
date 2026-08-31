@@ -155,3 +155,21 @@ if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
         get_user_model().objects.exists()
     except Exception:
         pass  # Table doesn't exist yet, ignore
+
+
+# Auto-run migrations on Railway deploy
+if 'runserver' not in sys.argv and 'migrate' not in sys.argv:
+    try:
+        from django.core.management import call_command
+        from django.db import connections
+        from django.db.utils import OperationalError
+
+        # Check if database exists
+        with connections['default'].cursor() as cursor:
+            cursor.execute("SELECT 1")
+
+        # Run migrations if needed
+        call_command('migrate', interactive=False)
+        print("✅ Migrations applied successfully!")
+    except OperationalError:
+        print("⚠️ Database not ready, skipping migrations...")
