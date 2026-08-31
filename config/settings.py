@@ -114,6 +114,7 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
 
 # Google OAuth credentials
+# Force HTTPS for OAuth
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
@@ -122,9 +123,16 @@ SOCIALACCOUNT_PROVIDERS = {
             'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
             'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
             'key': ''
-        }
+        },
+        'REDIRECT_URI': 'https://web-production-fc8ca.up.railway.app/accounts/google/login/callback/'
     }
 }
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = False  # Railway handles SSL
+    USE_X_FORWARDED_HOST = True
+    USE_X_FORWARDED_PORT = True
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
