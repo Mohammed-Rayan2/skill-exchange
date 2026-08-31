@@ -1,0 +1,6 @@
+LIVE APPLICATION URL:
+https://web-production-fc8ca.up.railway.app
+
+Demo Login:
+Username: ama_k
+Password: pass123

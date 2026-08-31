@@ -1,3 +1,4 @@
+import sys
 import dj_database_url
 from pathlib import Path
 import os
@@ -146,3 +147,11 @@ ALLOWED_HOSTS = ['*']
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+
+if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
+    try:
+        from django.db import connection
+        from django.contrib.auth import get_user_model
+        get_user_model().objects.exists()
+    except Exception:
+        pass  # Table doesn't exist yet, ignore

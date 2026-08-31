@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,7 +7,7 @@ from .forms import RegisterForm, LoginForm
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ← CHANGED
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -32,7 +32,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ← CHANGED
 
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -44,7 +44,7 @@ def login_view(request):
                 login(request, user)
                 messages.success(
                     request, f"✅ Welcome back, {user.display_name}!")
-                return redirect('dashboard')
+                return redirect('accounts:dashboard')  # ← CHANGED
             else:
                 messages.error(request, "❌ Incorrect username or password.")
     else:
@@ -76,7 +76,7 @@ def dashboard_view(request):
         Connection.objects.filter(requester=request.user).delete()
         from django.contrib import messages as msg
         msg.success(request, "🗑️ Connection history cleared.")
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ← CHANGED
 
     # Accept a connection request
     if request.method == 'POST' and 'accept_id' in request.POST:
@@ -90,7 +90,7 @@ def dashboard_view(request):
                 request, f"✅ You accepted {conn.requester.display_name}'s request!")
         except Connection.DoesNotExist:
             pass
-        return redirect('dashboard')
+        return redirect('accounts:dashboard')  # ← CHANGED
 
     return render(request, 'accounts/dashboard.html', {
         'teach_skills':     teach_skills,
@@ -101,3 +101,59 @@ def dashboard_view(request):
         'learn_count':      learn_skills.count(),
         'conn_count':       sent_connections.count(),
     })
+
+
+# ============ SKILL MANAGEMENT FUNCTIONS ============
+
+@login_required
+def add_skill_view(request):
+    """Add a new skill (Teach or Learn)"""
+    from skills.models import Skill
+
+    if request.method == 'POST':
+        skill_name = request.POST.get('skill_name', '').strip()
+        skill_type = request.POST.get('skill_type', '')
+
+        if not skill_name:
+            messages.error(request, "❌ Please enter a skill name.")
+            return redirect('accounts:dashboard')  # ← CHANGED
+
+        if skill_type not in ['Teach', 'Learn']:
+            messages.error(request, "❌ Invalid skill type.")
+            return redirect('accounts:dashboard')  # ← CHANGED
+
+        # Check if skill already exists for this user
+        existing = Skill.objects.filter(
+            user=request.user,
+            skill_name__iexact=skill_name,
+            skill_type=skill_type
+        ).first()
+
+        if existing:
+            messages.warning(
+                request, f"⚠️ You already have '{skill_name}' in your {skill_type} skills.")
+        else:
+            Skill.objects.create(
+                user=request.user,
+                skill_name=skill_name,
+                skill_type=skill_type
+            )
+            messages.success(
+                request, f"✅ '{skill_name}' added to your {skill_type} skills!")
+
+    return redirect('accounts:dashboard')  # ← CHANGED
+
+
+@login_required
+def delete_skill_view(request, skill_id):
+    """Delete a skill"""
+    from skills.models import Skill
+
+    skill = get_object_or_404(Skill, id=skill_id, user=request.user)
+    skill_name = skill.skill_name
+    skill_type = skill.skill_type
+    skill.delete()
+
+    messages.success(
+        request, f"🗑️ '{skill_name}' removed from your {skill_type} skills.")
+    return redirect('accounts:dashboard')  # ← CHANGED
