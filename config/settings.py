@@ -1,7 +1,7 @@
+import os
 import sys
 import dj_database_url
 from pathlib import Path
-import os
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -87,6 +87,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -100,7 +101,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 SITE_ID = 1
-
 
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
@@ -120,8 +120,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'online'},
         'APP': {
             'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
-            'secret':    os.environ.get('GOOGLE_CLIENT_SECRET', ''),
-            'key':       ''
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
+            'key': ''
         }
     }
 }
@@ -138,7 +138,6 @@ SOCIALACCOUNT_ADAPTER = 'accounts.adapter.SocialAccountAdapter'
 # WhiteNoise serves static files in production
 MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Allow Railway/Render domain
 ALLOWED_HOSTS = ['*']
@@ -147,29 +146,3 @@ ALLOWED_HOSTS = ['*']
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
-
-if 'migrate' not in sys.argv and 'makemigrations' not in sys.argv:
-    try:
-        from django.db import connection
-        from django.contrib.auth import get_user_model
-        get_user_model().objects.exists()
-    except Exception:
-        pass  # Table doesn't exist yet, ignore
-
-
-# Auto-run migrations on Railway deploy
-if 'runserver' not in sys.argv and 'migrate' not in sys.argv:
-    try:
-        from django.core.management import call_command
-        from django.db import connections
-        from django.db.utils import OperationalError
-
-        # Check if database exists
-        with connections['default'].cursor() as cursor:
-            cursor.execute("SELECT 1")
-
-        # Run migrations if needed
-        call_command('migrate', interactive=False)
-        print("✅ Migrations applied successfully!")
-    except OperationalError:
-        print("⚠️ Database not ready, skipping migrations...")
